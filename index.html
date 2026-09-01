@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>НП Рольова система</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f3f4f6;
+    color:#222;
+}
+
+header{
+    background:#fff;
+    padding:14px 18px;
+    border-bottom:1px solid #ddd;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    position:sticky;
+    top:0;
+    z-index:20;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:21px;
+    font-weight:900;
+}
+
+.logoBox{
+    background:#e30613;
+    color:#fff;
+    border-radius:8px;
+    width:40px;
+    height:40px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.container{
+    max-width:1200px;
+    margin:20px auto;
+    padding:0 15px;
+}
+
+.tabs{
+    display:flex;
+    gap:7px;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+}
+
+button{
+    border:0;
+    border-radius:9px;
+    padding:11px 15px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.tab{
+    background:#fff;
+}
+
+.tab.active,.red{
+    background:#e30613;
+    color:white;
+}
+
+.gray{
+    background:#eee;
+}
+
+.dark{
+    background:#222;
+    color:#fff;
+}
+
+.page{display:none}
+.page.active{display:block}
+
+.card{
+    background:#fff;
+    border-radius:15px;
+    padding:19px;
+    margin-bottom:16px;
+    box-shadow:0 2px 8px #00000012;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+    gap:13px;
+}
+
+label{
+    display:block;
+    font-weight:700;
+    margin-bottom:5px;
+}
+
+input,select{
+    width:100%;
+    padding:12px;
+    border:1px solid #ccc;
+    border-radius:9px;
+    font-size:15px;
+}
+
+.actions{
+    display:flex;
+    gap:7px;
+    flex-wrap:wrap;
+    margin-top:12px;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+    gap:12px;
+}
+
+.stat{
+    background:#fff;
+    border-radius:14px;
+    padding:17px;
+    box-shadow:0 2px 8px #0001;
+}
+
+.stat b{
+    display:block;
+    font-size:27px;
+    margin-top:5px;
+}
+
+.shipment,.client{
+    background:#fff;
+    border-radius:14px;
+    padding:16px;
+    margin-bottom:12px;
+    box-shadow:0 2px 7px #0001;
+}
+
+.shipTop,.clientTop{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.number{
+    font-size:19px;
+    font-weight:900;
+}
+
+.badge{
+    padding:6px 10px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:800;
+    background:#eee;
+}
+
+.registered{background:#fff0f0;color:#c50000}
+.road{background:#fff3dc;color:#a05a00}
+.arrived{background:#e9f1ff;color:#1555a5}
+.received{background:#e7f7eb;color:#197039}
+
+.small{
+    color:#777;
+    font-size:13px;
+}
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:#0008;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:15px;
+    z-index:100;
+}
+
+.modal.show{display:flex}
+
+.modalBox{
+    background:#fff;
+    width:100%;
+    max-width:700px;
+    max-height:92vh;
+    overflow:auto;
+    border-radius:17px;
+    padding:20px;
+}
+
+.close{
+    float:right;
+    background:#eee;
+}
+
+.clientCard{
+    border:1px solid #ddd;
+    border-radius:15px;
+    padding:20px;
+    max-width:430px;
+    margin:auto;
+    text-align:center;
+}
+
+.clientAvatar{
+    width:70px;
+    height:70px;
+    border-radius:50%;
+    background:#e30613;
+    color:#fff;
+    margin:0 auto 10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+    font-weight:900;
+}
+
+.qr{
+    display:flex;
+    justify-content:center;
+    margin:18px 0;
+}
+
+.barcode{
+    text-align:center;
+    margin:15px 0;
+}
+
+.label{
+    border:1px solid #ccc;
+    border-radius:12px;
+    padding:20px;
+    max-width:500px;
+    margin:auto;
+}
+
+.labelHead{
+    display:flex;
+    justify-content:space-between;
+    border-bottom:2px solid #111;
+    padding-bottom:10px;
+    margin-bottom:15px;
+}
+
+.labelInfo{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:7px;
+}
+
+.labelInfo div{
+    border:1px solid #ddd;
+    padding:8px;
+    border-radius:7px;
+}
+
+.empty{
+    text-align:center;
+    padding:30px;
+    color:#777;
+}
+
+.scanBox{
+    background:#fff;
+    border-radius:15px;
+    padding:20px;
+    box-shadow:0 2px 8px #0001;
+    margin-bottom:18px;
+}
+
+.scanInput{
+    font-size:20px;
+    text-align:center;
+}
+
+.notice{
+    background:#fff7d8;
+    padding:12px;
+    border-radius:9px;
+    font-size:14px;
+    margin-top:12px;
+}
+
+@media print{
+    body *{visibility:hidden}
+    #printArea,#printArea *{visibility:visible}
+    #printArea{
+        position:absolute;
+        left:0;
+        top:0;
+        width:100%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">
+        <div class="logoBox">НП</div>
+        Рольова Нова пошта
+    </div>
+    <div class="small">Локальна система</div>
+</header>
+
+<div class="container">
+
+<div class="tabs">
+    <button class="tab active" onclick="page('home',this)">Головна</button>
+    <button class="tab" onclick="page('scan',this)">📷 Сканер</button>
+    <button class="tab" onclick="page('clients',this)">👤 Клієнти</button>
+    <button class="tab" onclick="page('createClient',this)">➕ Клієнт</button>
+    <button class="tab" onclick="page('create',this)">📦 Відправлення</button>
+    <button class="tab" onclick="page('shipments',this)">📋 Посилки</button>
+    <button class="tab" onclick="page('shift',this)">🧾 Кінець зміни</button>
+</div>
+
+<!-- ГОЛОВНА -->
+
+<section id="home" class="page active">
+
+<div class="stats">
+
+<div class="stat">
+Клієнтів
+<b id="stClients">0</b>
+</div>
+
+<div class="stat">
+Посилок
+<b id="stShipments">0</b>
+</div>
+
+<div class="stat">
+В дорозі
+<b id="stRoad">0</b>
+</div>
+
+<div class="stat">
+Прибули
+<b id="stArrived">0</b>
+</div>
+
+<div class="stat">
+До видачі
+<b id="stReceive">0</b>
+</div>
+
+</div>
+
+<div class="card" style="margin-top:16px">
+
+<h2>🔎 Швидкий пошук клієнта</h2>
+
+<input id="homePhone"
+placeholder="Введи номер телефону..."
+oninput="homeSearch()">
+
+<div id="homeResult"></div>
+
+</div>
+
+</section>
+
+<!-- СКАНЕР -->
+
+<section id="scan" class="page">
+
+<div class="scanBox">
+
+<h2>📷 Сканування</h2>
+
+<p>
+Скануй <b>QR або штрихкод картки клієнта</b> або номер посилки.
+</p>
+
+<input
+id="scannerInput"
+class="scanInput"
+placeholder="Скануй код сюди..."
+autocomplete="off"
+onkeydown="scannerKey(event)"
+>
+
+<div class="actions">
+
+<button class="red" onclick="processScan()">
+🔎 Знайти
+</button>
+
+<button class="gray" onclick="focusScanner()">
+⌨️ Активувати сканер
+</button>
+
+</div>
+
+<div class="notice">
+USB/Bluetooth-сканер типу YuNew, який працює як клавіатура,
+можна просто направити на QR/штрихкод — код автоматично потрапить у це поле.
+</div>
+
+<div id="scanResult"></div>
+
+</div>
+
+</section>
+
+<!-- КЛІЄНТИ -->
+
+<section id="clients" class="page">
+
+<div class="card">
+
+<h2>👤 Клієнти</h2>
+
+<input
+id="clientSearch"
+placeholder="Пошук за ПІБ, телефоном або номером картки..."
+oninput="renderClients()">
+
+</div>
+
+<div id="clientList"></div>
+
+</section>
+
+<!-- СТВОРИТИ КЛІЄНТА -->
+
+<section id="createClient" class="page">
+
+<div class="card">
+
+<h2>➕ Створити картку клієнта</h2>
+
+<div class="grid">
+
+<div>
+<label>ПІБ</label>
+<input id="cName" placeholder="Іван Петренко">
+</div>
+
+<div>
+<label>Телефон</label>
+<input id="cPhone" placeholder="+380...">
+</div>
+
+<div>
+<label>Місто</label>
+<input id="cCity" placeholder="Київ">
+</div>
+
+<div>
+<label>Відділення</label>
+<input id="cOffice" placeholder="Відділення №1">
+</div>
+
+</div>
+
+<div class="actions">
+<button class="red" onclick="createClient()">
+➕ Створити картку
+</button>
+</div>
+
+</div>
+
+</section>
+
+<!-- СТВОРИТИ ПОСИЛКУ -->
+
+<section id="create" class="page">
+
+<div class="card">
+
+<h2>📦 Створити відправлення</h2>
+
+<div class="grid">
+
+<div>
+<label>Клієнт-відправник</label>
+<select id="senderClient"></select>
+</div>
+
+<div>
+<label>Клієнт-отримувач</label>
+<select id="receiverClient"></select>
+</div>
+
+<div>
+<label>Місто відправлення</label>
+<input id="fromCity" placeholder="Київ">
+</div>
+
+<div>
+<label>Місто отримання</label>
+<input id="toCity" placeholder="Харків">
+</div>
+
+<div>
+<label>Відділення відправлення</label>
+<input id="fromOffice" placeholder="№1">
+</div>
+
+<div>
+<label>Відділення отримання</label>
+<input id="toOffice" placeholder="№10">
+</div>
+
+<div>
+<label>Тип</label>
+<select id="type">
+<option>Посилка</option>
+<option>Документи</option>
+<option>Велика посилка</option>
+</select>
+</div>
+
+<div>
+<label>Вага, кг</label>
+<input id="weight" type="number" value="1">
+</div>
+
+<div>
+<label>Вартість</label>
+<input id="price" type="number" value="0">
+</div>
+
+</div>
+
+<div class="actions">
+
+<button class="red" onclick="createShipment()">
+📦 Створити
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ПОСИЛКИ -->
+
+<section id="shipments" class="page">
+
+<div class="card">
+
+<h2>📋 Посилки</h2>
+
+<input
+id="shipmentSearch"
+placeholder="Номер, телефон, ПІБ..."
+oninput="renderShipments()">
+
+</div>
+
+<div id="shipmentList"></div>
+
+</section>
+
+<!-- КІНЕЦЬ ЗМІНИ -->
+
+<section id="shift" class="page">
+
+<div class="card">
+
+<h2>🧾 Кінець зміни</h2>
+
+<p>Вибери одну, декілька або всі наклейки.</p>
+
+<div class="actions">
+
+<button class="gray" onclick="selectAll()">
+☑️ Всі
+</button>
+
+<button class="gray" onclick="clearSelected()">
+⬜ Очистити
+</button>
+
+<button class="red" onclick="printSelected()">
+🖨️ Друкувати вибрані
+</button>
+
+</div>
+
+<div id="shiftList"></div>
+
+</div>
+
+</section>
+
+</div>
+
+<!-- МОДАЛКА КЛІЄНТА -->
+
+<div class="modal" id="clientModal">
+
+<div class="modalBox">
+
+<button class="close" onclick="closeModal('clientModal')">✕</button>
+
+<div id="clientContent"></div>
+
+</div>
+
+</div>
+
+<!-- МОДАЛКА ПОСИЛКИ -->
+
+<div class="modal" id="labelModal">
+
+<div class="modalBox">
+
+<button class="close" onclick="closeModal('labelModal')">✕</button>
+
+<div id="labelContent"></div>
+
+<div class="actions">
+
+<button class="red" onclick="printCurrent()">
+🖨️ Друкувати
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div id="printArea"></div>
+
+<script>
+
+let clients=JSON.parse(localStorage.getItem("np_clients")||"[]");
+let shipments=JSON.parse(localStorage.getItem("np_shipments")||"[]");
+let selected=JSON.parse(localStorage.getItem("np_selected")||"[]");
+
+function save(){
+
+localStorage.setItem("np_clients",JSON.stringify(clients));
+localStorage.setItem("np_shipments",JSON.stringify(shipments));
+localStorage.setItem("np_selected",JSON.stringify(selected));
+
+}
+
+function page(id,btn){
+
+document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+
+document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+
+if(btn)btn.classList.add("active");
+
+renderAll();
+
+}
+
+function id(prefix){
+
+return prefix+
+Math.floor(100000+Math.random()*900000);
+
+}
+
+function shipmentNumber(){
+
+let n;
+
+do{
+n=String(Math.floor(10000000000000+Math.random()*89999999999999));
+}
+while(shipments.some(x=>x.number===n));
+
+return n;
+
+}
+
+function createClient(){
+
+let name=document.getElementById("cName").value.trim();
+let phone=document.getElementById("cPhone").value.trim();
+
+if(!name||!phone){
+
+alert("Заповни ПІБ і телефон.");
+return;
+
+}
+
+if(clients.some(x=>normalizePhone(x.phone)===normalizePhone(phone))){
+
+alert("Клієнт з таким номером уже існує.");
+return;
+
+}
+
+let c={
+
+id:id("C"),
+name,
+phone,
+city:document.getElementById("cCity").value||"Не вказано",
+office:document.getElementById("cOffice").value||"Не вказано",
+created:new Date().toLocaleString("uk-UA")
+
+};
+
+clients.push(c);
+
+save();
+
+document.getElementById("cName").value="";
+document.getElementById("cPhone").value="";
+document.getElementById("cCity").value="";
+document.getElementById("cOffice").value="";
+
+alert("Картку клієнта створено.");
+
+openClient(c.id);
+
+}
+
+function normalizePhone(p){
+
+return String(p).replace(/\D/g,"");
+
+}
+
+function createShipment(){
+
+let senderId=document.getElementById("senderClient").value;
+let receiverId=document.getElementById("receiverClient").value;
+
+if(!senderId||!receiverId){
+
+alert("Вибери відправника та отримувача.");
+return;
+
+}
+
+let s={
+
+id:Date.now(),
+
+number:shipmentNumber(),
+
+senderId,
+receiverId,
+
+fromCity:document.getElementById("fromCity").value||"Не вказано",
+toCity:document.getElementById("toCity").value||"Не вказано",
+
+fromOffice:document.getElementById("fromOffice").value||"Не вказано",
+toOffice:document.getElementById("toOffice").value||"Не вказано",
+
+type:document.getElementById("type").value,
+weight:document.getElementById("weight").value||0,
+price:document.getElementById("price").value||0,
+
+status:"registered",
+
+created:new Date().toLocaleString("uk-UA")
+
+};
+
+shipments.unshift(s);
+
+selected.push(s.id);
+
+save();
+
+openLabel(s.id);
+
+renderAll();
+
+}
+
+function getClient(cid){
+
+return clients.find(x=>x.id===cid);
+
+}
+
+function statusInfo(status){
+
+return {
+
+registered:["Зареєстрована","registered"],
+road:["В дорозі","road"],
+arrived:["Прибула","arrived"],
+received:["Отримано — видаляється","received"]
+
+}[status];
+
+}
+
+function changeStatus(sid){
+
+let s=shipments.find(x=>x.id===sid);
+
+if(!s)return;
+
+if(s.status==="registered")s.status="road";
+else if(s.status==="road")s.status="arrived";
+else if(s.status==="arrived")s.status="received";
+else{
+
+shipments=shipments.filter(x=>x.id!==sid);
+selected=selected.filter(x=>x!==sid);
+
+}
+
+save();
+renderAll();
+
+}
+
+function shipmentHTML(s,check=false){
+
+let a=getClient(s.senderId);
+let b=getClient(s.receiverId);
+
+let st=statusInfo(s.status);
+
+return `
+
+<div class="shipment">
+
+<div class="shipTop">
+
+<div>
+
+<div class="number">📦 ${s.number}</div>
+
+<div class="small">${s.created}</div>
+
+</div>
+
+<div class="badge ${st[1]}">${st[0]}</div>
+
+</div>
+
+<hr>
+
+<div class="grid">
+
+<div>
+<b>Відправник</b><br>
+${esc(a?.name||"Невідомий")}
+</div>
+
+<div>
+<b>Отримувач</b><br>
+${esc(b?.name||"Невідомий")}
+</div>
+
+<div>
+<b>Телефон отримувача</b><br>
+${esc(b?.phone||"—")}
+</div>
+
+<div>
+<b>Маршрут</b><br>
+${esc(s.fromCity)} → ${esc(s.toCity)}
+</div>
+
+</div>
+
+<div class="actions">
+
+<button class="red" onclick="openLabel(${s.id})">
+🏷️ Наклейка
+</button>
+
+<button class="gray" onclick="changeStatus(${s.id})">
+${s.status==="registered"?"🚚 В дорогу":
+s.status==="road"?"📍 Прибула":
+s.status==="arrived"?"📦 Видати":"🗑️ Видалити"}
+</button>
+
+${b?`<button class="gray" onclick="openClient('${b.id}')">
+👤 Картка отримувача
+</button>`:""}
+
+${check?`
+
+<label style="display:flex;align-items:center;gap:6px">
+<input type="checkbox"
+style="width:auto"
+${selected.includes(s.id)?"checked":""}
+onchange="toggleSelected(${s.id},this.checked)">
+Вибрати
+</label>
+
+`:""}
+
+</div>
+
+</div>
+
+`;
+
+}
+
+function renderShipments(){
+
+let box=document.getElementById("shipmentList");
+
+if(!box)return;
+
+let q=(document.getElementById("shipmentSearch")?.value||"").toLowerCase();
+
+let arr=shipments.filter(s=>{
+
+let a=getClient(s.senderId);
+let b=getClient(s.receiverId);
+
+return `
+
+${s.number}
+${a?.name}
+${a?.phone}
+${b?.name}
+${b?.phone}
+
+`.toLowerCase().includes(q);
+
+});
+
+box.innerHTML=arr.length?
+arr.map(s=>shipmentHTML(s)).join(""):
+`<div class="card empty">Посилок немає</div>`;
+
+}
+
+function renderClients(){
+
+let box=document.getElementById("clientList");
+
+if(!box)return;
+
+let q=(document.getElementById("clientSearch")?.value||"").toLowerCase();
+
+let arr=clients.filter(c=>
+
+`${c.name} ${c.phone} ${c.id} ${c.city}`
+.toLowerCase()
+.includes(q)
+
+);
+
+box.innerHTML=arr.length?
+
+arr.map(c=>`
+
+<div class="client">
+
+<div class="clientTop">
+
+<div>
+<div class="number">👤 ${esc(c.name)}</div>
+<div class="small">${esc(c.phone)}</div>
+</div>
+
+<div class="badge">${c.id}</div>
+
+</div>
+
+<div class="actions">
+
+<button class="red" onclick="openClient('${c.id}')">
+👤 Відкрити картку
+</button>
+
+</div>
+
+</div>
+
+`).join("")
+
+:
+`<div class="card empty">Клієнтів не знайдено</div>`;
+
+}
+
+function renderClientSelects(){
+
+let a=document.getElementById("senderClient");
+let b=document.getElementById("receiverClient");
+
+if(!a||!b)return;
+
+let options=`
+
+<option value="">— Вибрати клієнта —</option>
+
+`+clients.map(c=>
+
+`<option value="${c.id}">
+${esc(c.name)} — ${esc(c.phone)}
+</option>`
+
+).join("");
+
+a.innerHTML=options;
+b.innerHTML=options;
+
+}
+
+function openClient(cid){
+
+let c=getClient(cid);
+
+if(!c)return;
+
+let sent=shipments.filter(s=>s.senderId===cid);
+let received=shipments.filter(s=>s.receiverId===cid);
+
+document.getElementById("clientContent").innerHTML=`
+
+<h2>👤 Картка клієнта</h2>
+
+<div class="clientCard">
+
+<div class="clientAvatar">
+${esc(c.name.charAt(0).toUpperCase())}
+</div>
+
+<h2>${esc(c.name)}</h2>
+
+<p>📞 ${esc(c.phone)}</p>
+
+<p>📍 ${esc(c.city)}</p>
+
+<p>🏢 ${esc(c.office)}</p>
+
+<div class="badge">
+ID: ${c.id}
+</div>
+
+<div class="qr" id="clientQR"></div>
+
+<div class="barcode">
+<svg id="clientBarcode"></svg>
+</div>
+
+<p class="small">
+Цей QR/штрихкод можна показати працівнику на телефоні.
+</p>
+
+</div>
+
+<div class="card">
+
+<h3>📊 Інформація</h3>
+
+<p>📤 Відправлено: <b>${sent.length}</b></p>
+<p>📥 Отримано: <b>${received.length}</b></p>
+<p>📦 Всього пов'язаних посилок: <b>${sent.length+received.length}</b></p>
+
+</div>
+
+<div class="card">
+
+<h3>📦 Посилки клієнта</h3>
+
+${[...new Set([...sent,...received])]
+.map(s=>shipmentHTML(s))
+.join("")||"<div class='empty'>Посилок немає</div>"}
+
+</div>
+
+<div class="actions">
+
+<button class="red"
+onclick="newShipmentFromClient('${c.id}')">
+📤 Створити відправлення
+</button>
+
+<button class="gray"
+onclick="printClientCard('${c.id}')">
+🖨️ Друкувати картку
+</button>
+
+</div>
+
+`;
+
+new QRCode(
+document.getElementById("clientQR"),
+"CLIENT:"+c.id
+);
+
+JsBarcode(
+"#clientBarcode",
+c.id,
+{
+format:"CODE128",
+displayValue:true,
+width:2,
+height:55
+}
+);
+
+document.getElementById("clientModal").classList.add("show");
+
+}
+
+function newShipmentFromClient(cid){
+
+closeModal("clientModal");
+
+page("create");
+
+setTimeout(()=>{
+
+document.getElementById("senderClient").value=cid;
+
+},50);
+
+}
+
+function homeSearch(){
+
+let q=normalizePhone(document.getElementById("homePhone").value);
+
+let box=document.getElementById("homeResult");
+
+if(!q){
+
+box.innerHTML="";
+return;
+
+}
+
+let found=clients.filter(c=>
+normalizePhone(c.phone).includes(q)
+);
+
+box.innerHTML=found.length?
+
+found.map(c=>`
+
+<div class="client">
+
+<b>${esc(c.name)}</b><br>
+📞 ${esc(c.phone)}
+
+<div class="actions">
+<button class="red" onclick="openClient('${c.id}')">
+Відкрити
+</button>
+</div>
+
+</div>
+
+`).join("")
+
+:
+`<div class="empty">Клієнта не знайдено</div>`;
+
+}
+
+function processScan(){
+
+let code=document.getElementById("scannerInput").value.trim();
+
+if(!code)return;
+
+let result=document.getElementById("scanResult");
+
+let clientCode=code.replace("CLIENT:","");
+
+let c=clients.find(x=>
+x.id===clientCode
+);
+
+if(c){
+
+result.innerHTML=`
+<div class="card">
+<h3>👤 Клієнт знайдений</h3>
+<p>${esc(c.name)} — ${esc(c.phone)}</p>
+</div>
+`;
+
+openClient(c.id);
+
+document.getElementById("scannerInput").value="";
+
+return;
+
+}
+
+let s=shipments.find(x=>
+x.number===code ||
+("NP-"+x.number)===code
+);
+
+if(s){
+
+result.innerHTML=`
+<div class="card">
+<h3>📦 Посилка знайдена</h3>
+<p>№ ${s.number}</p>
+</div>
+`;
+
+openLabel(s.id);
+
+document.getElementById("scannerInput").value="";
+
+return;
+
+}
+
+result.innerHTML=`
+<div class="card">
+❌ Код не знайдено
+</div>
+`;
+
+}
+
+function scannerKey(e){
+
+if(e.key==="Enter"){
+e.preventDefault();
+processScan();
+}
+
+}
+
+function focusScanner(){
+
+document.getElementById("scannerInput").focus();
+
+}
+
+function toggleSelected(id,value){
+
+if(value){
+
+if(!selected.includes(id))
+selected.push(id);
+
+}else{
+
+selected=selected.filter(x=>x!==id);
+
+}
+
+save();
+
+}
+
+function selectAll(){
+
+selected=shipments.map(x=>x.id);
+
+save();
+
+renderShift();
+
+}
+
+function clearSelected(){
+
+selected=[];
+
+save();
+
+renderShift();
+
+}
+
+function renderShift(){
+
+let box=document.getElementById("shiftList");
+
+if(!box)return;
+
+box.innerHTML=shipments.length?
+
+shipments.map(s=>shipmentHTML(s,true)).join(""):
+`<div class="empty">Немає посилок</div>`;
+
+}
+
+function makeLabel(s){
+
+let a=getClient(s.senderId);
+let b=getClient(s.receiverId);
+
+return `
+
+<div class="label">
+
+<div class="labelHead">
+
+<b style="font-size:23px">
+НОВА ПОШТА
+</b>
+
+<b>ВІДПРАВЛЕННЯ</b>
+
+</div>
+
+<div class="labelInfo">
+
+<div>
+<b>Номер</b><br>
+${s.number}
+</div>
+
+<div>
+<b>Статус</b><br>
+${statusInfo(s.status)[0]}
+</div>
+
+<div>
+<b>Звідки</b><br>
+${esc(s.fromCity)}
+</div>
+
+<div>
+<b>Куди</b><br>
+${esc(s.toCity)}
+</div>
+
+<div>
+<b>Отримувач</b><br>
+${esc(b?.name||"—")}
+</div>
+
+<div>
+<b>Відділення</b><br>
+${esc(s.toOffice)}
+</div>
+
+</div>
+
+<div class="barcode">
+<svg id="shipBarcode${s.id}"></svg>
+</div>
+
+<div class="qr" id="shipQR${s.id}"></div>
+
+<div style="text-align:center">
+№ ${s.number}
+</div>
+
+</div>
+
+`;
+
+}
+
+function openLabel(id){
+
+let s=shipments.find(x=>x.id===id);
+
+if(!s)return;
+
+document.getElementById("labelContent").innerHTML=makeLabel(s);
+
+setTimeout(()=>{
+
+JsBarcode(
+"#shipBarcode"+s.id,
+s.number,
+{
+format:"CODE128",
+displayValue:true,
+width:2,
+height:60
+}
+);
+
+new QRCode(
+document.getElementById("shipQR"+s.id),
+"NP:"+s.number
+);
+
+},20);
+
+document.getElementById("labelModal").classList.add("show");
+
+}
+
+function printCurrent(){
+
+let html=document.getElementById("labelContent").innerHTML;
+
+document.getElementById("printArea").innerHTML=html;
+
+window.print();
+
+}
+
+function printSelected(){
+
+let arr=shipments.filter(s=>selected.includes(s.id));
+
+if(!arr.length){
+
+alert("Вибери наклейки.");
+return;
+
+}
+
+document.getElementById("printArea").innerHTML=
+
+arr.map(s=>makeLabel(s))
+.join("<div style='page-break-after:always'></div>");
+
+setTimeout(()=>{
+
+arr.forEach(s=>{
+
+JsBarcode(
+"#shipBarcode"+s.id,
+s.number,
+{
+format:"CODE128",
+displayValue:true,
+width:2,
+height:60
+}
+);
+
+new QRCode(
+document.getElementById("shipQR"+s.id),
+"NP:"+s.number
+);
+
+});
+
+setTimeout(()=>window.print(),100);
+
+},50);
+
+}
+
+function printClientCard(cid){
+
+let c=getClient(cid);
+
+if(!c)return;
+
+document.getElementById("printArea").innerHTML=`
+
+<div class="clientCard">
+
+<div class="clientAvatar">
+${esc(c.name.charAt(0))}
+</div>
+
+<h1>${esc(c.name)}</h1>
+
+<h3>📞 ${esc(c.phone)}</h3>
+
+<p>📍 ${esc(c.city)}</p>
+<p>🏢 ${esc(c.office)}</p>
+
+<div class="qr">
+<div id="printClientQR"></div>
+</div>
+
+<svg id="printClientBarcode"></svg>
+
+<p>${c.id}</p>
+
+</div>
+
+`;
+
+setTimeout(()=>{
+
+new QRCode(
+document.getElementById("printClientQR"),
+"CLIENT:"+c.id
+);
+
+JsBarcode(
+"#printClientBarcode",
+c.id,
+{
+format:"CODE128",
+displayValue:true,
+width:2,
+height:60
+}
+);
+
+setTimeout(()=>window.print(),100);
+
+},50);
+
+}
+
+function closeModal(id){
+
+document.getElementById(id).classList.remove("show");
+
+}
+
+function updateStats(){
+
+document.getElementById("stClients").textContent=clients.length;
+
+document.getElementById("stShipments").textContent=shipments.length;
+
+document.getElementById("stRoad").textContent=
+shipments.filter(x=>x.status==="road").length;
+
+document.getElementById("stArrived").textContent=
+shipments.filter(x=>x.status==="arrived").length;
+
+document.getElementById("stReceive").textContent=
+shipments.filter(x=>x.status==="arrived").length;
+
+}
+
+function esc(x){
+
+return String(x||"")
+.replaceAll("&","&amp;")
+.replaceAll("<","&lt;")
+.replaceAll(">","&gt;")
+.replaceAll('"',"&quot;")
+.replaceAll("'","&#039;");
+
+}
+
+function renderAll(){
+
+updateStats();
+renderClients();
+renderClientSelects();
+renderShipments();
+renderShift();
+
+}
+
+renderAll();
+
+focusScanner();
+
+</script>
+
+</body>
+</html>
